@@ -2,7 +2,7 @@
   "name": "Time Tracker",
   "short_name": "TimeTrack",
   "description": "Location-based time tracking with charge codes",
-  "start_url": "/",
+  "start_url": "/time-tracker/",
   "display": "standalone",
   "background_color": "#1e40af",
   "theme_color": "#1e40af",
