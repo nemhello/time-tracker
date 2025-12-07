@@ -2,11 +2,12 @@
 let activeEntry = null;
 let timerInterval = null;
 let entries = [];
+let selectedCategory = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
     loadEntries();
-    renderLocationList();
+    renderCategories();
     renderEntries();
     updateCurrentDate();
     setupEventListeners();
@@ -18,16 +19,58 @@ function setupEventListeners() {
         renderLocationList(e.target.value);
     });
     
+    document.getElementById('backBtn').addEventListener('click', backToCategories);
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
     document.getElementById('exportBtn').addEventListener('click', exportEntries);
 }
 
+function renderCategories() {
+    const list = document.getElementById('categoryList');
+    const categories = Object.keys(CATEGORIES);
+    
+    list.innerHTML = categories.map(category => {
+        const count = CATEGORIES[category].length;
+        return `
+            <div class="category-item" onclick="selectCategory('${category}')">
+                <div class="category-name">${category}</div>
+                <div class="category-count">${count} location${count !== 1 ? 's' : ''}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectCategory(category) {
+    selectedCategory = category;
+    document.getElementById('categorySelection').classList.add('hidden');
+    document.getElementById('locationSelection').classList.remove('hidden');
+    renderLocationList();
+}
+
+function backToCategories() {
+    selectedCategory = null;
+    document.getElementById('searchBox').value = '';
+    document.getElementById('locationSelection').classList.add('hidden');
+    document.getElementById('categorySelection').classList.remove('hidden');
+}
+
 function renderLocationList(searchTerm = '') {
     const list = document.getElementById('locationList');
-    const filtered = LOCATIONS.filter(loc => 
+    
+    if (!selectedCategory) {
+        list.innerHTML = '';
+        return;
+    }
+    
+    const locations = CATEGORIES[selectedCategory] || [];
+    const filtered = locations.filter(loc => 
         loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         loc.chargeCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="no-entries">No locations found</div>';
+        return;
+    }
     
     list.innerHTML = filtered.map(loc => `
         <div class="location-item" onclick="startTimer('${loc.name}', '${loc.chargeCode}')">
@@ -103,12 +146,16 @@ function showActiveTimer() {
     document.getElementById('activeLocation').textContent = activeEntry.location;
     document.getElementById('activeChargeCode').textContent = activeEntry.chargeCode;
     document.getElementById('activeTimer').classList.remove('hidden');
+    document.getElementById('categorySelection').classList.add('hidden');
     document.getElementById('locationSelection').classList.add('hidden');
 }
 
 function hideActiveTimer() {
     document.getElementById('activeTimer').classList.add('hidden');
-    document.getElementById('locationSelection').classList.remove('hidden');
+    document.getElementById('categorySelection').classList.remove('hidden');
+    document.getElementById('locationSelection').classList.add('hidden');
+    selectedCategory = null;
+    document.getElementById('searchBox').value = '';
 }
 
 function renderEntries() {

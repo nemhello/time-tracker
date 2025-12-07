@@ -88,9 +88,62 @@ header h1 {
     letter-spacing: 2px;
 }
 
+/* Category Selection */
+#categorySelection {
+    padding: 20px;
+}
+
+.category-list {
+    display: grid;
+    gap: 16px;
+}
+
+.category-item {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.category-item:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.category-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #1d1d1f;
+}
+
+.category-count {
+    font-size: 14px;
+    color: #6b7280;
+}
+
 /* Location Selection */
 #locationSelection {
     padding: 20px;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.btn-back:active {
+    opacity: 0.7;
 }
 
 .search-box {
