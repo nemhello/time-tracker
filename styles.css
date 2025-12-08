@@ -76,8 +76,24 @@ header h1 {
 .charge-code {
     font-size: 16px;
     opacity: 0.9;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     font-family: 'Courier New', monospace;
+}
+
+.active-address {
+    display: block;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.95;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+}
+
+.active-address:active {
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .timer-display {
@@ -86,6 +102,30 @@ header h1 {
     font-family: 'Courier New', monospace;
     margin: 20px 0;
     letter-spacing: 2px;
+}
+
+.notes-field {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1d1d1f;
+    resize: vertical;
+    min-height: 80px;
+    margin: 16px 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.notes-field::placeholder {
+    color: #9ca3af;
+}
+
+.notes-field:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: white;
 }
 
 /* Category Selection */
@@ -193,6 +233,12 @@ header h1 {
     font-family: 'Courier New', monospace;
 }
 
+.loc-address {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
 /* Today's Entries */
 #todaySection {
     padding: 20px;
@@ -241,6 +287,18 @@ header h1 {
     margin-top: 2px;
 }
 
+.entry-address {
+    display: block;
+    font-size: 12px;
+    color: #3b82f6;
+    text-decoration: none;
+    margin-top: 4px;
+}
+
+.entry-address:active {
+    color: #2563eb;
+}
+
 .entry-times {
     font-size: 14px;
     color: #4b5563;
@@ -256,6 +314,15 @@ header h1 {
 .entry-times strong {
     display: inline-block;
     width: 70px;
+}
+
+.entry-notes {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 14px;
+    color: #4b5563;
+    font-style: italic;
 }
 
 #totalHours {

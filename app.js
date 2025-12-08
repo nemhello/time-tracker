@@ -64,7 +64,8 @@ function renderLocationList(searchTerm = '') {
     const locations = CATEGORIES[selectedCategory] || [];
     const filtered = locations.filter(loc => 
         loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loc.chargeCode.toLowerCase().includes(searchTerm.toLowerCase())
+        loc.chargeCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (loc.address && loc.address.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     
     if (filtered.length === 0) {
@@ -73,14 +74,21 @@ function renderLocationList(searchTerm = '') {
     }
     
     list.innerHTML = filtered.map(loc => `
-        <div class="location-item" onclick="startTimer('${loc.name}', '${loc.chargeCode}')">
+        <div class="location-item" onclick="startTimer('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}')">
             <div class="loc-name">${loc.name}</div>
             <div class="loc-code">${loc.chargeCode}</div>
+            ${loc.address ? `<div class="loc-address">${loc.address}</div>` : ''}
         </div>
     `).join('');
 }
 
-function startTimer(locationName, chargeCode) {
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function startTimer(locationName, chargeCode, address = '') {
     if (activeEntry) {
         alert('Stop current timer first');
         return;
@@ -91,19 +99,25 @@ function startTimer(locationName, chargeCode) {
         id: Date.now(),
         location: locationName,
         chargeCode: chargeCode,
+        address: address,
         startTime: now.toISOString(),
-        endTime: null
+        endTime: null,
+        notes: ''
     };
     
     saveActiveEntry();
     showActiveTimer();
     startTimerDisplay();
+    
+    // Clear and focus notes field
+    document.getElementById('notesField').value = '';
 }
 
 function stopTimer() {
     if (!activeEntry) return;
     
     activeEntry.endTime = new Date().toISOString();
+    activeEntry.notes = document.getElementById('notesField').value.trim();
     entries.push(activeEntry);
     saveEntries();
     
@@ -145,6 +159,20 @@ function updateTimerDisplay() {
 function showActiveTimer() {
     document.getElementById('activeLocation').textContent = activeEntry.location;
     document.getElementById('activeChargeCode').textContent = activeEntry.chargeCode;
+    
+    // Setup address link for Apple Maps
+    const addressEl = document.getElementById('activeAddress');
+    if (activeEntry.address && activeEntry.address !== 'Add address here') {
+        addressEl.textContent = '📍 ' + activeEntry.address;
+        addressEl.href = 'http://maps.apple.com/?q=' + encodeURIComponent(activeEntry.address);
+        addressEl.style.display = 'block';
+    } else {
+        addressEl.style.display = 'none';
+    }
+    
+    // Restore notes if resuming timer
+    document.getElementById('notesField').value = activeEntry.notes || '';
+    
     document.getElementById('activeTimer').classList.remove('hidden');
     document.getElementById('categorySelection').classList.add('hidden');
     document.getElementById('locationSelection').classList.add('hidden');
@@ -183,6 +211,9 @@ function renderEntries() {
                     <div>
                         <div class="entry-location">${entry.location}</div>
                         <div class="entry-code">${entry.chargeCode}</div>
+                        ${entry.address && entry.address !== 'Add address here' ? 
+                            `<a href="http://maps.apple.com/?q=${encodeURIComponent(entry.address)}" 
+                                target="_blank" class="entry-address">📍 ${entry.address}</a>` : ''}
                     </div>
                     <button onclick="deleteEntry(${entry.id})" class="btn-delete">✕</button>
                 </div>
@@ -196,6 +227,7 @@ function renderEntries() {
                         <button onclick="editTime(${entry.id}, 'end')" class="btn-edit">✎</button>
                     </div>
                     <div><strong>Duration:</strong> ${duration}</div>
+                    ${entry.notes ? `<div class="entry-notes"><strong>Notes:</strong> ${entry.notes}</div>` : ''}
                 </div>
             </div>
         `;
@@ -264,19 +296,15 @@ function exportEntries() {
     todayEntries.forEach(entry => {
         const start = new Date(entry.startTime);
         const end = new Date(entry.endTime);
-        const duration = formatDuration(end - start);
         
         text += `Location: ${entry.location}\n`;
-        text += `Charge Code: ${entry.chargeCode}\n`;
         text += `Start: ${formatTime(start)}\n`;
-        text += `End: ${formatTime(end)}\n`;
-        text += `Duration: ${duration}\n\n`;
+        text += `Stop: ${formatTime(end)}\n`;
+        if (entry.notes) {
+            text += `Notes: ${entry.notes}\n`;
+        }
+        text += `\n`;
     });
-    
-    const totalMs = todayEntries.reduce((sum, e) => 
-        sum + (new Date(e.endTime) - new Date(e.startTime)), 0
-    );
-    text += `TOTAL: ${formatDuration(totalMs)}`;
     
     // Copy to clipboard
     navigator.clipboard.writeText(text).then(() => {
@@ -307,6 +335,14 @@ function checkActiveEntry() {
         activeEntry = JSON.parse(stored);
         showActiveTimer();
         startTimerDisplay();
+        
+        // Auto-save notes as user types
+        document.getElementById('notesField').addEventListener('input', (e) => {
+            if (activeEntry) {
+                activeEntry.notes = e.target.value;
+                saveActiveEntry();
+            }
+        });
     }
 }
 
