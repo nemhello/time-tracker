@@ -21,6 +21,9 @@ function setupEventListeners() {
         handleGlobalSearch(e.target.value);
     });
     
+    // Clear search button
+    document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+    
     // Navigation buttons
     document.getElementById('backBtn').addEventListener('click', backToCategories);
     document.getElementById('backFromDetailsBtn').addEventListener('click', backFromDetails);
@@ -38,16 +41,19 @@ function setupEventListeners() {
 function handleGlobalSearch(searchTerm) {
     const results = document.getElementById('globalSearchResults');
     const categoryList = document.getElementById('categoryList');
+    const clearBtn = document.getElementById('clearSearchBtn');
     
     if (!searchTerm || searchTerm.trim() === '') {
         results.classList.add('hidden');
         categoryList.style.display = 'grid';
+        clearBtn.classList.add('hidden');
         return;
     }
     
-    // Hide categories, show results
+    // Hide categories, show results and back button
     categoryList.style.display = 'none';
     results.classList.remove('hidden');
+    clearBtn.classList.remove('hidden');
     
     // Search all categories
     const allMatches = [];
@@ -79,6 +85,14 @@ function handleGlobalSearch(searchTerm) {
             <div class="loc-category">${loc.category}</div>
         </div>
     `).join('');
+}
+
+function clearSearch() {
+    document.getElementById('globalSearchBox').value = '';
+    document.getElementById('globalSearchResults').innerHTML = '';
+    document.getElementById('globalSearchResults').classList.add('hidden');
+    document.getElementById('categoryList').style.display = 'grid';
+    document.getElementById('clearSearchBtn').classList.add('hidden');
 }
 
 // Category Management
