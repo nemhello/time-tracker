@@ -1,7 +1,7 @@
 {
   "name": "Time Tracker",
   "short_name": "TimeTrack",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Location-based time tracking with charge codes",
   "start_url": "/time-tracker/",
   "display": "standalone",

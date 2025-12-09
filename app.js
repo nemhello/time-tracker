@@ -15,6 +15,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     console.log('✓ CATEGORIES loaded:', Object.keys(CATEGORIES).length, 'categories');
     
+    // Ensure back button is hidden on init
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (clearBtn) {
+        clearBtn.classList.add('hidden');
+    }
+    
+    // Ensure search results are hidden on init
+    const searchResults = document.getElementById('globalSearchResults');
+    if (searchResults) {
+        searchResults.classList.add('hidden');
+        searchResults.innerHTML = '';
+    }
+    
     loadEntries();
     renderCategories();
     renderEntries();
@@ -51,8 +64,14 @@ function handleGlobalSearch(searchTerm) {
     const categoryList = document.getElementById('categoryList');
     const clearBtn = document.getElementById('clearSearchBtn');
     
+    console.log('=== SEARCH CALLED ===');
+    console.log('1. Search term:', searchTerm);
+    console.log('2. Results div:', results ? 'EXISTS' : 'NULL');
+    console.log('3. Results classes:', results ? results.className : 'N/A');
+    
     // Clear search
     if (!searchTerm || searchTerm.trim() === '') {
+        console.log('4. Empty search - hiding results');
         results.classList.add('hidden');
         results.innerHTML = '';
         categoryList.style.display = 'grid';
@@ -61,22 +80,26 @@ function handleGlobalSearch(searchTerm) {
     }
     
     // Show results area
+    console.log('4. Non-empty search - showing results area');
     categoryList.style.display = 'none';
     results.classList.remove('hidden');
     clearBtn.classList.remove('hidden');
+    console.log('5. Results classes after unhide:', results.className);
     
     // Check if CATEGORIES exists
     if (typeof CATEGORIES === 'undefined') {
-        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Location data not loaded. Please refresh the page.</div>';
-        console.error('CATEGORIES is undefined');
+        console.error('6. ERROR: CATEGORIES undefined');
+        results.innerHTML = '<div class="no-entries" style="color: red; padding: 20px;">ERROR: Location data not loaded. Please refresh the page.</div>';
         return;
     }
     
     if (typeof CATEGORIES !== 'object' || CATEGORIES === null) {
-        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Location data is invalid.</div>';
-        console.error('CATEGORIES is not an object:', typeof CATEGORIES);
+        console.error('6. ERROR: CATEGORIES invalid type:', typeof CATEGORIES);
+        results.innerHTML = '<div class="no-entries" style="color: red; padding: 20px;">ERROR: Location data is invalid.</div>';
         return;
     }
+    
+    console.log('6. CATEGORIES OK - starting search');
     
     // Search all categories
     const allMatches = [];
@@ -97,6 +120,10 @@ function handleGlobalSearch(searchTerm) {
                        loc.chargeCode.toLowerCase().includes(term);
             });
             
+            if (matches.length > 0) {
+                console.log(`   - "${categoryName}": ${matches.length} matches`);
+            }
+            
             matches.forEach(loc => {
                 allMatches.push({
                     name: loc.name,
@@ -107,20 +134,25 @@ function handleGlobalSearch(searchTerm) {
             });
         }
     } catch (error) {
-        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Search failed - ' + error.message + '</div>';
-        console.error('Search error:', error);
+        console.error('7. SEARCH ERROR:', error);
+        results.innerHTML = '<div class="no-entries" style="color: red; padding: 20px;">ERROR: Search failed - ' + error.message + '</div>';
         return;
     }
     
+    console.log('7. Total matches found:', allMatches.length);
+    
     // Show results
     if (allMatches.length === 0) {
-        results.innerHTML = '<div class="no-entries">No locations found for "' + searchTerm + '"</div>';
+        console.log('8. No matches - setting "not found" message');
+        results.innerHTML = '<div class="no-entries" style="padding: 40px 20px; text-align: center; color: #6b7280; background: white; border-radius: 12px; margin: 20px;">No locations found for "<strong>' + escapeHtml(searchTerm) + '</strong>"<br><br>Try searching by location name or charge code</div>';
+        console.log('9. Message set, innerHTML length:', results.innerHTML.length);
         return;
     }
     
     // Render results
+    console.log('8. Rendering', allMatches.length, 'results');
     try {
-        results.innerHTML = allMatches.map(loc => {
+        const html = allMatches.map(loc => {
             const safeName = escapeHtml(loc.name);
             const safeCode = escapeHtml(loc.chargeCode);
             const safeAddress = escapeHtml(loc.address);
@@ -134,9 +166,14 @@ function handleGlobalSearch(searchTerm) {
                 </div>
             `;
         }).join('');
+        
+        results.innerHTML = html;
+        console.log('9. HTML set, length:', html.length);
+        console.log('10. Results innerHTML now:', results.innerHTML.length, 'characters');
+        console.log('11. SEARCH COMPLETE');
     } catch (error) {
-        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Could not display results - ' + error.message + '</div>';
-        console.error('Render error:', error);
+        console.error('9. RENDER ERROR:', error);
+        results.innerHTML = '<div class="no-entries" style="color: red; padding: 20px;">ERROR: Could not display results - ' + error.message + '</div>';
     }
 }
 
