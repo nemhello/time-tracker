@@ -1,19 +1,19 @@
 // Edit charge codes and addresses here
 // Format: { name: "Name", chargeCode: "SZ02B04D33", address: "123 Main St, City, MO 64101" }
 const CATEGORIES = {
-        "Tower Sites": [
+    "Tower Sites": [
         { name: "Bennington RF Sub-Site", chargeCode: "SZ02B040107", address: "11231 Bennington Ave, Kansas City, MO 64134" },
         { name: "Booth RF Sub-Site", chargeCode: "SZ02B040105", address: "6801 Booth St, Kansas City, MO 64133" },
         { name: "City Hall RF Sub-Site", chargeCode: "SZ02B040102", address: "414 E 12 St, Kansas City, MO 64106" },
         { name: "Clay County RF Sub-Site", chargeCode: "SZ02B040110", address: "16616 NE 116 St, Kansas City, MO 64060" },
         { name: "KCI RF Sub-Site", chargeCode: "SZ02B040103", address: "9205 NW 112 St, Kansas City, MO 64153" },
-        { name: "North Patrol Master Site (Barry)", chargeCode: "SZ02B04", address: "1001 NW Barry Rd, Kansas City, MO 64154" },
+        { name: "North Patrol Master Site", chargeCode: "SZ02B04", address: "1001 NW Barry Rd, Kansas City, MO 64154" },
         { name: "North Patrol Prime Site", chargeCode: "SZ02B0401", address: "1001 NW Barry Rd, Kansas City, MO 64154" },
         { name: "North Patrol RF Sub-Site", chargeCode: "SZ02B040101", address: "1001 NW Barry Rd, Kansas City, MO 64154" },
         { name: "Riverside RF Sub-Site", chargeCode: "SZ02B040109", address: "4191-4399 NW Tillison Rd, Kansas City, MO 64150" },
         { name: "Tower Park RF Sub-Site", chargeCode: "SZ02B040106", address: "7500 Holmes Rd, Kansas City, MO 64131" },
-        { name: "UMKC/Plaza RF Sub-Site", chargeCode: "SZ02B040108", address: "988 E 52 St, Kansas City, MO 64110" },
-        { name: "Van Brunt(Fleet) RF Sub-Site", chargeCode: "SZ02B040111", address: "5301 E 27 St, Kansas City, MO 64127" },
+        { name: "UMKC RF Sub-Site", chargeCode: "SZ02B040108", address: "988 E 52 St, Kansas City, MO 64110" },
+        { name: "Van Brunt RF Sub-Site", chargeCode: "SZ02B040111", address: "5301 E 27 St, Kansas City, MO 64127" },
         { name: "WOF RF Sub-Site", chargeCode: "SZ02B040104", address: "4923 N Winchester Ave, Kansas City, MO 64119" },
     ],
     "Independence Prime": [
