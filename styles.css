@@ -152,8 +152,22 @@ header h1 {
     padding-bottom: 10px;
 }
 
-.search-results {
-    margin-top: 16px;
+.search-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.search-header .search-box {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.search-header .btn-back {
+    padding: 8px 0;
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .loc-category {
