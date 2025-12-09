@@ -77,7 +77,7 @@ function renderLocationList(searchTerm = '') {
         <div class="location-item" onclick="startTimer('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}')">
             <div class="loc-name">${loc.name}</div>
             <div class="loc-code">${loc.chargeCode}</div>
-            ${loc.address ? `<div class="loc-address">${loc.address}</div>` : ''}
+            ${loc.address && loc.address.trim() !== '' ? `<div class="loc-address">${loc.address}</div>` : ''}
         </div>
     `).join('');
 }
@@ -160,9 +160,9 @@ function showActiveTimer() {
     document.getElementById('activeLocation').textContent = activeEntry.location;
     document.getElementById('activeChargeCode').textContent = activeEntry.chargeCode;
     
-    // Setup address link for Apple Maps
+    // Setup address link for Apple Maps - only if address exists
     const addressEl = document.getElementById('activeAddress');
-    if (activeEntry.address && activeEntry.address !== 'Add address here') {
+    if (activeEntry.address && activeEntry.address.trim() !== '') {
         addressEl.textContent = '📍 ' + activeEntry.address;
         addressEl.href = 'http://maps.apple.com/?q=' + encodeURIComponent(activeEntry.address);
         addressEl.style.display = 'block';
@@ -211,9 +211,6 @@ function renderEntries() {
                     <div>
                         <div class="entry-location">${entry.location}</div>
                         <div class="entry-code">${entry.chargeCode}</div>
-                        ${entry.address && entry.address !== 'Add address here' ? 
-                            `<a href="http://maps.apple.com/?q=${encodeURIComponent(entry.address)}" 
-                                target="_blank" class="entry-address">📍 ${entry.address}</a>` : ''}
                     </div>
                     <button onclick="deleteEntry(${entry.id})" class="btn-delete">✕</button>
                 </div>
