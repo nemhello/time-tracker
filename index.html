@@ -19,18 +19,6 @@
             <div id="currentDate"></div>
         </header>
 
-        <!-- Location Details -->
-        <div id="locationDetails" class="hidden">
-            <button id="backFromDetailsBtn" class="btn-back">← Back</button>
-            <div class="details-card">
-                <div class="details-location" id="detailsLocation"></div>
-                <div class="details-code" id="detailsChargeCode"></div>
-                <div id="detailsAddress" class="details-address"></div>
-                <button id="emailStartBtn" class="btn btn-email">📧 Email Dispatch to Start</button>
-                <button id="startTimerBtn" class="btn btn-primary">▶ Start Timer</button>
-            </div>
-        </div>
-
         <!-- Active Timer Section -->
         <div id="activeTimer" class="hidden">
             <div class="active-card">
@@ -41,12 +29,6 @@
                 <textarea id="notesField" class="notes-field" placeholder="Add notes (optional)..."></textarea>
                 <button id="stopBtn" class="btn btn-danger">STOP</button>
             </div>
-        </div>
-
-        <!-- Global Search -->
-        <div id="globalSearch">
-            <input type="text" id="globalSearchBox" placeholder="Search all locations..." class="search-box">
-            <div id="globalSearchResults" class="location-list"></div>
         </div>
 
         <!-- Global Search -->
@@ -71,8 +53,8 @@
             <button id="backFromDetailsBtn" class="btn-back">← Back</button>
             <div class="details-card">
                 <div class="details-location" id="detailsLocation"></div>
-                <div class="details-code" id="detailsCode"></div>
-                <a id="detailsAddress" class="details-address" href="#" target="_blank"></a>
+                <div class="details-code" id="detailsChargeCode"></div>
+                <div id="detailsAddress" class="details-address"></div>
                 <button id="emailStartBtn" class="btn btn-email">📧 Email Dispatch to Start</button>
                 <button id="startTimerBtn" class="btn btn-primary">▶ Start Timer</button>
             </div>
