@@ -3,6 +3,7 @@ let activeEntry = null;
 let timerInterval = null;
 let entries = [];
 let selectedCategory = null;
+let selectedLocation = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,15 +16,77 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
+    // Global search
+    document.getElementById('globalSearchBox').addEventListener('input', (e) => {
+        handleGlobalSearch(e.target.value);
+    });
+    
+    // Category search
     document.getElementById('searchBox').addEventListener('input', (e) => {
         renderLocationList(e.target.value);
     });
     
+    // Navigation buttons
     document.getElementById('backBtn').addEventListener('click', backToCategories);
+    document.getElementById('backFromDetailsBtn').addEventListener('click', backFromDetails);
+    
+    // Timer buttons
+    document.getElementById('emailStartBtn').addEventListener('click', emailDispatchStart);
+    document.getElementById('startTimerBtn').addEventListener('click', confirmStartTimer);
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
+    
+    // Export button
     document.getElementById('exportBtn').addEventListener('click', exportEntries);
 }
 
+// Global Search
+function handleGlobalSearch(searchTerm) {
+    const results = document.getElementById('globalSearchResults');
+    const categoryList = document.getElementById('categoryList');
+    
+    if (!searchTerm || searchTerm.trim() === '') {
+        results.classList.add('hidden');
+        categoryList.style.display = 'grid';
+        return;
+    }
+    
+    // Hide categories, show results
+    categoryList.style.display = 'none';
+    results.classList.remove('hidden');
+    
+    // Search all categories
+    const allMatches = [];
+    const term = searchTerm.toLowerCase();
+    
+    for (const [categoryName, locations] of Object.entries(CATEGORIES)) {
+        const matches = locations.filter(loc => 
+            loc.name.toLowerCase().includes(term) ||
+            loc.chargeCode.toLowerCase().includes(term)
+        );
+        
+        matches.forEach(loc => {
+            allMatches.push({
+                ...loc,
+                category: categoryName
+            });
+        });
+    }
+    
+    if (allMatches.length === 0) {
+        results.innerHTML = '<div class="no-entries">No locations found</div>';
+        return;
+    }
+    
+    results.innerHTML = allMatches.map(loc => `
+        <div class="location-item" onclick="showLocationDetails('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}', '${escapeHtml(loc.category)}')">
+            <div class="loc-name">${loc.name}</div>
+            <div class="loc-code">${loc.chargeCode}</div>
+            <div class="loc-category">${loc.category}</div>
+        </div>
+    `).join('');
+}
+
+// Category Management
 function renderCategories() {
     const list = document.getElementById('categoryList');
     const categories = Object.keys(CATEGORIES);
@@ -31,7 +94,7 @@ function renderCategories() {
     list.innerHTML = categories.map(category => {
         const count = CATEGORIES[category].length;
         return `
-            <div class="category-item" onclick="selectCategory('${category}')">
+            <div class="category-item" onclick="selectCategory('${escapeHtml(category)}')">
                 <div class="category-name">${category}</div>
                 <div class="category-count">${count} location${count !== 1 ? 's' : ''}</div>
             </div>
@@ -41,6 +104,7 @@ function renderCategories() {
 
 function selectCategory(category) {
     selectedCategory = category;
+    document.getElementById('globalSearchSection').classList.add('hidden');
     document.getElementById('categorySelection').classList.add('hidden');
     document.getElementById('locationSelection').classList.remove('hidden');
     renderLocationList();
@@ -49,10 +113,16 @@ function selectCategory(category) {
 function backToCategories() {
     selectedCategory = null;
     document.getElementById('searchBox').value = '';
+    document.getElementById('globalSearchBox').value = '';
+    document.getElementById('globalSearchResults').innerHTML = '';
+    document.getElementById('globalSearchResults').classList.add('hidden');
+    document.getElementById('categoryList').style.display = 'grid';
     document.getElementById('locationSelection').classList.add('hidden');
+    document.getElementById('globalSearchSection').classList.remove('hidden');
     document.getElementById('categorySelection').classList.remove('hidden');
 }
 
+// Location List
 function renderLocationList(searchTerm = '') {
     const list = document.getElementById('locationList');
     
@@ -74,7 +144,7 @@ function renderLocationList(searchTerm = '') {
     }
     
     list.innerHTML = filtered.map(loc => `
-        <div class="location-item" onclick="startTimer('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}')">
+        <div class="location-item" onclick="showLocationDetails('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}', '${escapeHtml(selectedCategory)}')">
             <div class="loc-name">${loc.name}</div>
             <div class="loc-code">${loc.chargeCode}</div>
             ${loc.address && loc.address.trim() !== '' ? `<div class="loc-address">${loc.address}</div>` : ''}
@@ -82,10 +152,69 @@ function renderLocationList(searchTerm = '') {
     `).join('');
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+// Location Details
+function showLocationDetails(locationName, chargeCode, address, category) {
+    selectedLocation = {
+        name: locationName,
+        chargeCode: chargeCode,
+        address: address,
+        category: category
+    };
+    
+    document.getElementById('detailsLocation').textContent = locationName;
+    document.getElementById('detailsChargeCode').textContent = chargeCode;
+    
+    const addressEl = document.getElementById('detailsAddress');
+    if (address && address.trim() !== '') {
+        addressEl.innerHTML = `<a href="http://maps.apple.com/?q=${encodeURIComponent(address)}" target="_blank">📍 ${address}</a>`;
+        addressEl.style.display = 'block';
+    } else {
+        addressEl.style.display = 'none';
+    }
+    
+    // Hide other views
+    document.getElementById('globalSearchSection').classList.add('hidden');
+    document.getElementById('categorySelection').classList.add('hidden');
+    document.getElementById('locationSelection').classList.add('hidden');
+    document.getElementById('locationDetails').classList.remove('hidden');
+}
+
+function backFromDetails() {
+    document.getElementById('locationDetails').classList.add('hidden');
+    
+    if (selectedCategory) {
+        document.getElementById('locationSelection').classList.remove('hidden');
+    } else {
+        document.getElementById('globalSearchSection').classList.remove('hidden');
+        document.getElementById('categorySelection').classList.remove('hidden');
+    }
+}
+
+// Email Functions
+function emailDispatchStart() {
+    if (!selectedLocation) return;
+    
+    const subject = encodeURIComponent(selectedLocation.chargeCode);
+    const body = encodeURIComponent(`Please open a ticket to start work at ${selectedLocation.name}`);
+    const mailto = `mailto:dispatch@motorolasolutions.com?subject=${subject}&body=${body}`;
+    
+    window.location.href = mailto;
+}
+
+function emailDispatchStop() {
+    if (!activeEntry) return;
+    
+    const subject = encodeURIComponent(activeEntry.chargeCode);
+    const body = encodeURIComponent(`All work at ${activeEntry.location} is finished, please close this ticket.`);
+    const mailto = `mailto:dispatch@motorolasolutions.com?subject=${subject}&body=${body}`;
+    
+    window.location.href = mailto;
+}
+
+// Timer Functions
+function confirmStartTimer() {
+    if (!selectedLocation) return;
+    startTimer(selectedLocation.name, selectedLocation.chargeCode, selectedLocation.address);
 }
 
 function startTimer(locationName, chargeCode, address = '') {
@@ -116,17 +245,23 @@ function startTimer(locationName, chargeCode, address = '') {
 function stopTimer() {
     if (!activeEntry) return;
     
-    activeEntry.endTime = new Date().toISOString();
-    activeEntry.notes = document.getElementById('notesField').value.trim();
-    entries.push(activeEntry);
-    saveEntries();
+    // First send the closing email
+    emailDispatchStop();
     
-    activeEntry = null;
-    localStorage.removeItem('activeEntry');
-    
-    hideActiveTimer();
-    stopTimerDisplay();
-    renderEntries();
+    // Then stop the timer after a brief delay to allow email to open
+    setTimeout(() => {
+        activeEntry.endTime = new Date().toISOString();
+        activeEntry.notes = document.getElementById('notesField').value.trim();
+        entries.push(activeEntry);
+        saveEntries();
+        
+        activeEntry = null;
+        localStorage.removeItem('activeEntry');
+        
+        hideActiveTimer();
+        stopTimerDisplay();
+        renderEntries();
+    }, 100);
 }
 
 function startTimerDisplay() {
@@ -174,18 +309,25 @@ function showActiveTimer() {
     document.getElementById('notesField').value = activeEntry.notes || '';
     
     document.getElementById('activeTimer').classList.remove('hidden');
+    document.getElementById('globalSearchSection').classList.add('hidden');
     document.getElementById('categorySelection').classList.add('hidden');
     document.getElementById('locationSelection').classList.add('hidden');
+    document.getElementById('locationDetails').classList.add('hidden');
 }
 
 function hideActiveTimer() {
     document.getElementById('activeTimer').classList.add('hidden');
+    document.getElementById('globalSearchSection').classList.remove('hidden');
     document.getElementById('categorySelection').classList.remove('hidden');
     document.getElementById('locationSelection').classList.add('hidden');
+    document.getElementById('locationDetails').classList.add('hidden');
     selectedCategory = null;
+    selectedLocation = null;
     document.getElementById('searchBox').value = '';
+    document.getElementById('globalSearchBox').value = '';
 }
 
+// Entry Management
 function renderEntries() {
     const today = new Date().toDateString();
     const todayEntries = entries.filter(e => 
@@ -370,4 +512,10 @@ function updateCurrentDate() {
         day: 'numeric' 
     });
     document.getElementById('currentDate').textContent = date;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
