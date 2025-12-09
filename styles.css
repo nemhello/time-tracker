@@ -38,7 +38,7 @@ header h1 {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Active Timer */
@@ -150,6 +150,24 @@ header h1 {
 #globalSearchSection {
     padding: 20px;
     padding-bottom: 10px;
+}
+
+#globalSearchResults {
+    margin-top: 16px;
+    min-height: 0;
+}
+
+#globalSearchResults:not(.hidden) {
+    display: grid;
+    gap: 12px;
+}
+
+#globalSearchResults.hidden {
+    display: none !important;
+}
+
+#clearSearchBtn.hidden {
+    display: none !important;
 }
 
 .search-header {

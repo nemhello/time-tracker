@@ -15,18 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     console.log('✓ CATEGORIES loaded:', Object.keys(CATEGORIES).length, 'categories');
     
-    // Ensure back button is hidden on init
-    const clearBtn = document.getElementById('clearSearchBtn');
-    if (clearBtn) {
-        clearBtn.classList.add('hidden');
-    }
-    
-    // Ensure search results are hidden on init
-    const searchResults = document.getElementById('globalSearchResults');
-    if (searchResults) {
-        searchResults.classList.add('hidden');
-        searchResults.innerHTML = '';
-    }
+    // Force back button hidden on init
+    setTimeout(() => {
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) {
+            clearBtn.classList.add('hidden');
+            console.log('✓ Back button hidden');
+        }
+        
+        // Ensure search results are hidden on init
+        const searchResults = document.getElementById('globalSearchResults');
+        if (searchResults) {
+            searchResults.classList.add('hidden');
+            searchResults.innerHTML = '';
+            console.log('✓ Search results cleared');
+        }
+    }, 100);
     
     loadEntries();
     renderCategories();
