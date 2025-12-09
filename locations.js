@@ -2,7 +2,7 @@
 // Format: { name: "Name", chargeCode: "SZ02B04D33", address: "123 Main St, City, MO 64101" }
 const CATEGORIES = {
     "Tower Sites": [
-        { name: "Bennington RF Sub-Site", chargeCode: "SZ02B040107", address: "" },
+        { name: "Bennington RF Sub-Site", chargeCode: "SZ02B040107", address: "11231 Bennington Ave, Kansas City, MO 64134" },
         { name: "Booth RF Sub-Site", chargeCode: "SZ02B040105", address: "" },
         { name: "City Hall RF Sub-Site", chargeCode: "SZ02B040102", address: "" },
         { name: "Clay County RF Sub-Site", chargeCode: "SZ02B040110", address: "" },
