@@ -21,11 +21,6 @@ function setupEventListeners() {
         handleGlobalSearch(e.target.value);
     });
     
-    // Category search
-    document.getElementById('searchBox').addEventListener('input', (e) => {
-        renderLocationList(e.target.value);
-    });
-    
     // Navigation buttons
     document.getElementById('backBtn').addEventListener('click', backToCategories);
     document.getElementById('backFromDetailsBtn').addEventListener('click', backFromDetails);
@@ -112,7 +107,6 @@ function selectCategory(category) {
 
 function backToCategories() {
     selectedCategory = null;
-    document.getElementById('searchBox').value = '';
     document.getElementById('globalSearchBox').value = '';
     document.getElementById('globalSearchResults').innerHTML = '';
     document.getElementById('globalSearchResults').classList.add('hidden');
@@ -123,7 +117,7 @@ function backToCategories() {
 }
 
 // Location List
-function renderLocationList(searchTerm = '') {
+function renderLocationList() {
     const list = document.getElementById('locationList');
     
     if (!selectedCategory) {
@@ -132,18 +126,13 @@ function renderLocationList(searchTerm = '') {
     }
     
     const locations = CATEGORIES[selectedCategory] || [];
-    const filtered = locations.filter(loc => 
-        loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        loc.chargeCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (loc.address && loc.address.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
     
-    if (filtered.length === 0) {
-        list.innerHTML = '<div class="no-entries">No locations found</div>';
+    if (locations.length === 0) {
+        list.innerHTML = '<div class="no-entries">No locations in this category</div>';
         return;
     }
     
-    list.innerHTML = filtered.map(loc => `
+    list.innerHTML = locations.map(loc => `
         <div class="location-item" onclick="showLocationDetails('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}', '${escapeHtml(selectedCategory)}')">
             <div class="loc-name">${loc.name}</div>
             <div class="loc-code">${loc.chargeCode}</div>
@@ -323,7 +312,6 @@ function hideActiveTimer() {
     document.getElementById('locationDetails').classList.add('hidden');
     selectedCategory = null;
     selectedLocation = null;
-    document.getElementById('searchBox').value = '';
     document.getElementById('globalSearchBox').value = '';
 }
 
