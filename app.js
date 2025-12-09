@@ -7,6 +7,14 @@ let selectedLocation = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if CATEGORIES loaded
+    if (typeof CATEGORIES === 'undefined') {
+        console.error('CRITICAL: CATEGORIES not loaded!');
+        alert('ERROR: Location data failed to load. Please refresh the page.');
+        return;
+    }
+    console.log('✓ CATEGORIES loaded:', Object.keys(CATEGORIES).length, 'categories');
+    
     loadEntries();
     renderCategories();
     renderEntries();
@@ -43,61 +51,93 @@ function handleGlobalSearch(searchTerm) {
     const categoryList = document.getElementById('categoryList');
     const clearBtn = document.getElementById('clearSearchBtn');
     
-    console.log('Search term:', searchTerm); // DEBUG
-    
+    // Clear search
     if (!searchTerm || searchTerm.trim() === '') {
         results.classList.add('hidden');
+        results.innerHTML = '';
         categoryList.style.display = 'grid';
         clearBtn.classList.add('hidden');
         return;
     }
     
-    // Hide categories, show results and back button
+    // Show results area
     categoryList.style.display = 'none';
     results.classList.remove('hidden');
     clearBtn.classList.remove('hidden');
     
-    console.log('CATEGORIES exists?', typeof CATEGORIES !== 'undefined'); // DEBUG
+    // Check if CATEGORIES exists
+    if (typeof CATEGORIES === 'undefined') {
+        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Location data not loaded. Please refresh the page.</div>';
+        console.error('CATEGORIES is undefined');
+        return;
+    }
+    
+    if (typeof CATEGORIES !== 'object' || CATEGORIES === null) {
+        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Location data is invalid.</div>';
+        console.error('CATEGORIES is not an object:', typeof CATEGORIES);
+        return;
+    }
     
     // Search all categories
     const allMatches = [];
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase().trim();
     
-    if (typeof CATEGORIES === 'undefined') {
-        results.innerHTML = '<div class="no-entries">Error: Location data not loaded</div>';
-        return;
-    }
-    
-    for (const [categoryName, locations] of Object.entries(CATEGORIES)) {
-        const matches = locations.filter(loc => 
-            loc.name.toLowerCase().includes(term) ||
-            loc.chargeCode.toLowerCase().includes(term)
-        );
-        
-        matches.forEach(loc => {
-            allMatches.push({
-                ...loc,
-                category: categoryName
+    try {
+        for (const [categoryName, locations] of Object.entries(CATEGORIES)) {
+            if (!Array.isArray(locations)) {
+                console.warn(`Category "${categoryName}" is not an array`);
+                continue;
+            }
+            
+            const matches = locations.filter(loc => {
+                if (!loc || !loc.name || !loc.chargeCode) {
+                    return false;
+                }
+                return loc.name.toLowerCase().includes(term) ||
+                       loc.chargeCode.toLowerCase().includes(term);
             });
-        });
-    }
-    
-    console.log('Found matches:', allMatches.length); // DEBUG
-    
-    if (allMatches.length === 0) {
-        results.innerHTML = '<div class="no-entries">No locations found</div>';
+            
+            matches.forEach(loc => {
+                allMatches.push({
+                    name: loc.name,
+                    chargeCode: loc.chargeCode,
+                    address: loc.address || '',
+                    category: categoryName
+                });
+            });
+        }
+    } catch (error) {
+        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Search failed - ' + error.message + '</div>';
+        console.error('Search error:', error);
         return;
     }
     
-    results.innerHTML = allMatches.map(loc => `
-        <div class="location-item" onclick="showLocationDetails('${escapeHtml(loc.name)}', '${escapeHtml(loc.chargeCode)}', '${escapeHtml(loc.address || '')}', '${escapeHtml(loc.category)}')">
-            <div class="loc-name">${loc.name}</div>
-            <div class="loc-code">${loc.chargeCode}</div>
-            <div class="loc-category">${loc.category}</div>
-        </div>
-    `).join('');
+    // Show results
+    if (allMatches.length === 0) {
+        results.innerHTML = '<div class="no-entries">No locations found for "' + searchTerm + '"</div>';
+        return;
+    }
     
-    console.log('Results HTML set'); // DEBUG
+    // Render results
+    try {
+        results.innerHTML = allMatches.map(loc => {
+            const safeName = escapeHtml(loc.name);
+            const safeCode = escapeHtml(loc.chargeCode);
+            const safeAddress = escapeHtml(loc.address);
+            const safeCategory = escapeHtml(loc.category);
+            
+            return `
+                <div class="location-item" onclick="showLocationDetails('${safeName}', '${safeCode}', '${safeAddress}', '${safeCategory}')">
+                    <div class="loc-name">${loc.name}</div>
+                    <div class="loc-code">${loc.chargeCode}</div>
+                    <div class="loc-category">${loc.category}</div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        results.innerHTML = '<div class="no-entries" style="color: red;">ERROR: Could not display results - ' + error.message + '</div>';
+        console.error('Render error:', error);
+    }
 }
 
 function clearSearch() {
