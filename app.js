@@ -43,6 +43,8 @@ function handleGlobalSearch(searchTerm) {
     const categoryList = document.getElementById('categoryList');
     const clearBtn = document.getElementById('clearSearchBtn');
     
+    console.log('Search term:', searchTerm); // DEBUG
+    
     if (!searchTerm || searchTerm.trim() === '') {
         results.classList.add('hidden');
         categoryList.style.display = 'grid';
@@ -55,9 +57,16 @@ function handleGlobalSearch(searchTerm) {
     results.classList.remove('hidden');
     clearBtn.classList.remove('hidden');
     
+    console.log('CATEGORIES exists?', typeof CATEGORIES !== 'undefined'); // DEBUG
+    
     // Search all categories
     const allMatches = [];
     const term = searchTerm.toLowerCase();
+    
+    if (typeof CATEGORIES === 'undefined') {
+        results.innerHTML = '<div class="no-entries">Error: Location data not loaded</div>';
+        return;
+    }
     
     for (const [categoryName, locations] of Object.entries(CATEGORIES)) {
         const matches = locations.filter(loc => 
@@ -73,6 +82,8 @@ function handleGlobalSearch(searchTerm) {
         });
     }
     
+    console.log('Found matches:', allMatches.length); // DEBUG
+    
     if (allMatches.length === 0) {
         results.innerHTML = '<div class="no-entries">No locations found</div>';
         return;
@@ -85,6 +96,8 @@ function handleGlobalSearch(searchTerm) {
             <div class="loc-category">${loc.category}</div>
         </div>
     `).join('');
+    
+    console.log('Results HTML set'); // DEBUG
 }
 
 function clearSearch() {
