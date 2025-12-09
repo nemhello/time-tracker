@@ -1,4 +1,4 @@
-const CACHE_NAME = 'time-tracker-v2-search-fix';
+const CACHE_NAME = 'time-tracker-' + Date.now();
 const urlsToCache = [
   '/',
   '/index.html',
