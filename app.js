@@ -253,13 +253,17 @@ function handleCodeSelection(codeType) {
     const code = codeType === 'SZ' ? selectedLocation.chargeCodeSZ : selectedLocation.chargeCodeMOS;
     if (!code) return;
     
+    const action = pendingCodeSelection;
     hideCodeModal();
     
-    if (pendingCodeSelection === 'start') {
+    if (action === 'start') {
         sendStartEmail(code);
-    } else if (pendingCodeSelection === 'stop') {
+    } else if (action === 'stop') {
         sendStopEmail(code);
-        setTimeout(finishEntry, 500);
+        // Finish entry right after sending email
+        setTimeout(() => {
+            finishEntry();
+        }, 300);
     }
 }
 
@@ -351,7 +355,15 @@ function stopTimer() {
         return;
     }
     
-    // Others show code modal
+    // Set selectedLocation from activeEntry for modal
+    selectedLocation = {
+        name: activeEntry.location,
+        chargeCodeSZ: activeEntry.chargeCodeSZ,
+        chargeCodeMOS: activeEntry.chargeCodeMOS,
+        address: activeEntry.address
+    };
+    
+    // Show modal for stop email
     showCodeModal('stop');
 }
 
@@ -583,6 +595,7 @@ function setupEventListeners() {
     
     document.getElementById('useSZCode').addEventListener('click', () => handleCodeSelection('SZ'));
     document.getElementById('useMOSCode').addEventListener('click', () => handleCodeSelection('MOS'));
+    document.getElementById('skipEmailBtn').addEventListener('click', skipEmailAndFinish);
     document.getElementById('cancelCodeModal').addEventListener('click', hideCodeModal);
     
     const notesField = document.getElementById('notesField');
@@ -593,6 +606,13 @@ function setupEventListeners() {
                 saveActiveEntry();
             }
         });
+    }
+}
+
+function skipEmailAndFinish() {
+    hideCodeModal();
+    if (pendingCodeSelection === 'stop') {
+        finishEntry();
     }
 }
 
