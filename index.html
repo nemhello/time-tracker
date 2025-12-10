@@ -68,11 +68,38 @@
             <h2>Today's Entries</h2>
             <div id="entriesList"></div>
             <div id="totalHours"></div>
-            <button id="exportBtn" class="btn btn-secondary">Export for Timecard</button>
+            <button id="viewPastBtn" class="btn btn-secondary">📅 View Past Entries</button>
+        </div>
+        
+        <!-- Calendar/Past Entries View -->
+        <div id="calendarView" class="hidden">
+            <button id="backFromCalendarBtn" class="btn-back">← Back to Today</button>
+            <h2>Past Entries</h2>
+            <div id="calendarContainer"></div>
+            <div id="pastEntriesDetail" class="hidden">
+                <h3 id="selectedDateTitle"></h3>
+                <div id="selectedDateEntries"></div>
+            </div>
+        </div>
+        
+        <!-- Code Selection Modal -->
+        <div id="codeModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Which code to use?</h3>
+                <button id="useSZCode" class="btn btn-primary code-btn">
+                    <div class="code-label">SZ Code</div>
+                    <div class="code-value" id="szCodeValue"></div>
+                </button>
+                <button id="useMOSCode" class="btn btn-primary code-btn">
+                    <div class="code-label">MOS Code</div>
+                    <div class="code-value" id="mosCodeValue"></div>
+                </button>
+                <button id="cancelCodeModal" class="btn btn-secondary">Cancel</button>
+            </div>
         </div>
         
         <!-- Version -->
-        <div class="version">v2.1</div>
+        <div class="version">v3.0</div>
     </div>
 
     <script src="locations.js"></script>
