@@ -12,15 +12,18 @@
 - **Fix:** Properly call `finishEntry()` after code selection
 - **Added:** "Skip Email & Finish" emergency button
 
+**Bonus Fix:** Category order changed to: Tower Sites, Police, Fire, (rest same)
+
 ## URGENT - Deploy This NOW:
 
-### Files to Update (4):
+### Files to Update (5):
 
 Download and replace:
 1. [app.js](computer:///mnt/user-data/outputs/app.js) - Fixed timer and email logic
 2. [index.html](computer:///mnt/user-data/outputs/index.html) - Added skip button
-3. [service-worker.js](computer:///mnt/user-data/outputs/service-worker.js) - Cache v3.0.1
-4. [manifest.json](computer:///mnt/user-data/outputs/manifest.json) - v3.0.1
+3. [locations.js](computer:///mnt/user-data/outputs/locations.js) - Reordered categories
+4. [service-worker.js](computer:///mnt/user-data/outputs/service-worker.js) - Cache v3.0.1
+5. [manifest.json](computer:///mnt/user-data/outputs/manifest.json) - v3.0.1
 
 ### Deploy Steps:
 

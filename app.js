@@ -349,9 +349,24 @@ function startTimer() {
 function stopTimer() {
     if (!activeEntry) return;
     
+    // STOP THE CLOCK IMMEDIATELY
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    
+    // Set end time now
+    activeEntry.endTime = new Date().toISOString();
+    activeEntry.notes = document.getElementById('notesField').value;
+    
     // Training finishes immediately
     if (activeEntry.location === 'Training') {
-        finishEntry();
+        entries.push(activeEntry);
+        saveEntries();
+        activeEntry = null;
+        saveActiveEntry();
+        hideActiveTimer();
+        renderEntries();
         return;
     }
     
@@ -368,14 +383,10 @@ function stopTimer() {
 }
 
 function finishEntry() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
+    // Timer already stopped in stopTimer()
+    // activeEntry already has endTime and notes set
     
-    activeEntry.endTime = new Date().toISOString();
-    activeEntry.notes = document.getElementById('notesField').value;
-    
+    // Save the entry
     entries.push(activeEntry);
     saveEntries();
     
