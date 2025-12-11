@@ -622,8 +622,9 @@ function setupEventListeners() {
 }
 
 function skipEmailAndFinish() {
+    const action = pendingCodeSelection;  // Save before clearing!
     hideCodeModal();
-    if (pendingCodeSelection === 'stop') {
+    if (action === 'stop') {
         finishEntry();
     }
 }
