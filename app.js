@@ -604,6 +604,8 @@ function setupEventListeners() {
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
     
     document.getElementById('viewPastBtn').addEventListener('click', showCalendar);
+    document.getElementById('exportDataBtn').addEventListener('click', exportData);
+    document.getElementById('importDataBtn').addEventListener('click', importData);
     
     document.getElementById('useSZCode').addEventListener('click', () => handleCodeSelection('SZ'));
     document.getElementById('useMOSCode').addEventListener('click', () => handleCodeSelection('MOS'));
@@ -633,6 +635,68 @@ function updateCurrentDate() {
     const dateDiv = document.getElementById('currentDate');
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dateDiv.textContent = new Date().toLocaleDateString('en-US', options);
+}
+
+// Export/Import Data
+function exportData() {
+    const data = {
+        entries: entries,
+        exportDate: new Date().toISOString(),
+        version: 'v3.0.2'
+    };
+    
+    const dataStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const date = new Date().toISOString().split('T')[0];
+    const filename = `time-tracker-backup-${date}.json`;
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    
+    URL.revokeObjectURL(url);
+    alert(`✓ Backup saved: ${filename}\n\nKeep this file safe! Import it after reinstalling the app.`);
+}
+
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                
+                if (!data.entries || !Array.isArray(data.entries)) {
+                    alert('❌ Invalid backup file');
+                    return;
+                }
+                
+                const confirmMsg = `Import ${data.entries.length} entries?\n\nThis will REPLACE your current data.\n\nBackup exported: ${new Date(data.exportDate).toLocaleString()}`;
+                
+                if (confirm(confirmMsg)) {
+                    entries = data.entries;
+                    saveEntries();
+                    renderEntries();
+                    alert(`✓ Imported ${entries.length} entries successfully!`);
+                }
+            } catch (err) {
+                alert('❌ Error reading backup file: ' + err.message);
+            }
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
 }
 
 // Utilities
