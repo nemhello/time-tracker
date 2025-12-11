@@ -1,7 +1,7 @@
 {
   "name": "Time Tracker",
   "short_name": "TimeTracker",
-  "version": "3.1",
+  "version": "3.2",
   "description": "Track time at different locations",
   "start_url": "/time-tracker/",
   "scope": "/time-tracker/",

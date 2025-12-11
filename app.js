@@ -437,7 +437,10 @@ function renderEntries() {
             <div class="entry-card">
                 <div class="entry-header">
                     <div class="entry-location">${entry.location}</div>
-                    <button class="btn-delete" onclick="deleteEntry(${entry.id})">×</button>
+                    <div class="entry-actions">
+                        <button class="btn-edit" onclick="editEntry(${entry.id})">Edit</button>
+                        <button class="btn-delete" onclick="deleteEntry(${entry.id})">×</button>
+                    </div>
                 </div>
                 ${entry.chargeCodeSZ ? `<div class="entry-code">${entry.chargeCodeSZ}</div>` : ''}
                 <div class="entry-time">${formatTime(start)} - ${formatTime(end)}</div>
@@ -462,6 +465,58 @@ function deleteEntry(id) {
         saveEntries();
         renderEntries();
     }
+}
+
+function editEntry(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    
+    const start = new Date(entry.startTime);
+    const end = new Date(entry.endTime);
+    
+    const startStr = start.toTimeString().slice(0, 5);
+    const endStr = end.toTimeString().slice(0, 5);
+    
+    const newStart = prompt(
+        `Edit start time (24-hour format):\nCurrent: ${startStr}\n\nEnter new time (HH:MM):`,
+        startStr
+    );
+    
+    if (!newStart) return;
+    
+    const newEnd = prompt(
+        `Edit end time (24-hour format):\nCurrent: ${endStr}\n\nEnter new time (HH:MM):`,
+        endStr
+    );
+    
+    if (!newEnd) return;
+    
+    const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9])$/;
+    
+    if (!timeRegex.test(newStart) || !timeRegex.test(newEnd)) {
+        alert('Invalid time format. Use HH:MM (24-hour)\nExample: 08:30 or 14:45');
+        return;
+    }
+    
+    const [startHour, startMin] = newStart.split(':').map(Number);
+    const [endHour, endMin] = newEnd.split(':').map(Number);
+    
+    const newStartDate = new Date(start);
+    newStartDate.setHours(startHour, startMin, 0, 0);
+    
+    const newEndDate = new Date(end);
+    newEndDate.setHours(endHour, endMin, 0, 0);
+    
+    if (newEndDate <= newStartDate) {
+        alert('End time must be after start time');
+        return;
+    }
+    
+    entry.startTime = newStartDate.toISOString();
+    entry.endTime = newEndDate.toISOString();
+    
+    saveEntries();
+    renderEntries();
 }
 
 // Calendar
