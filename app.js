@@ -399,6 +399,7 @@ function finishEntry() {
 
 function hideActiveTimer() {
     document.getElementById('activeTimer').classList.add('hidden');
+    document.getElementById('todaySection').classList.remove('hidden');
     document.getElementById('globalSearchSection').classList.remove('hidden');
     document.getElementById('categorySelection').classList.remove('hidden');
     selectedCategory = null;
