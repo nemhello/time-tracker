@@ -326,6 +326,7 @@ function showActiveTimer() {
         addressLink.style.display = 'none';
     }
     
+    document.getElementById('workOrderField').value = activeEntry.workOrder || '';
     document.getElementById('notesField').value = activeEntry.notes || '';
 }
 
@@ -357,6 +358,7 @@ function stopTimer() {
     
     // Set end time now
     activeEntry.endTime = new Date().toISOString();
+    activeEntry.workOrder = document.getElementById('workOrderField').value.trim();
     activeEntry.notes = document.getElementById('notesField').value;
     
     // Training finishes immediately
@@ -438,14 +440,16 @@ function renderEntries() {
                 <div class="entry-header">
                     <div class="entry-location">${entry.location}</div>
                     <div class="entry-actions">
-                        <button class="btn-edit" onclick="editEntry(${entry.id})">Edit</button>
+                        <button class="btn-edit" onclick="editEntry(${entry.id})">Edit Time</button>
+                        <button class="btn-edit" onclick="editDetails(${entry.id})">Details</button>
                         <button class="btn-delete" onclick="deleteEntry(${entry.id})">×</button>
                     </div>
                 </div>
                 ${entry.chargeCodeSZ ? `<div class="entry-code">${entry.chargeCodeSZ}</div>` : ''}
+                ${entry.workOrder ? `<div class="entry-workorder">WO #${entry.workOrder}</div>` : ''}
                 <div class="entry-time">${formatTime(start)} - ${formatTime(end)}</div>
                 <div class="entry-duration">${formatDuration(duration)}</div>
-                ${entry.notes ? `<div class="entry-notes">${entry.notes}</div>` : ''}
+                ${entry.notes ? `<div class="entry-notes">📝 ${entry.notes}</div>` : ''}
             </div>
         `;
     }).join('');
@@ -514,6 +518,37 @@ function editEntry(id) {
     
     entry.startTime = newStartDate.toISOString();
     entry.endTime = newEndDate.toISOString();
+    
+    saveEntries();
+    renderEntries();
+}
+
+function editDetails(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    
+    const currentWO = entry.workOrder || '';
+    const currentNotes = entry.notes || '';
+    
+    const newWO = prompt(
+        `Edit Work Order # for ${entry.location}:\n\n(Leave blank if none)`,
+        currentWO
+    );
+    
+    // User clicked Cancel on work order
+    if (newWO === null) return;
+    
+    const newNotes = prompt(
+        `Edit notes for ${entry.location}:\n\n(Leave blank to remove notes)`,
+        currentNotes
+    );
+    
+    // User clicked Cancel on notes
+    if (newNotes === null) return;
+    
+    // Save both fields
+    entry.workOrder = newWO.trim();
+    entry.notes = newNotes.trim();
     
     saveEntries();
     renderEntries();
@@ -633,9 +668,10 @@ function showDateEntries(year, month, day) {
                     <div class="entry-location">${entry.location}</div>
                 </div>
                 ${entry.chargeCodeSZ ? `<div class="entry-code">${entry.chargeCodeSZ}</div>` : ''}
+                ${entry.workOrder ? `<div class="entry-workorder">WO #${entry.workOrder}</div>` : ''}
                 <div class="entry-time">${formatTime(start)} - ${formatTime(end)}</div>
                 <div class="entry-duration">${formatDuration(duration)}</div>
-                ${entry.notes ? `<div class="entry-notes">${entry.notes}</div>` : ''}
+                ${entry.notes ? `<div class="entry-notes">📝 ${entry.notes}</div>` : ''}
             </div>
         `;
     }).join('');
@@ -666,6 +702,16 @@ function setupEventListeners() {
     document.getElementById('useMOSCode').addEventListener('click', () => handleCodeSelection('MOS'));
     document.getElementById('skipEmailBtn').addEventListener('click', skipEmailAndFinish);
     document.getElementById('cancelCodeModal').addEventListener('click', hideCodeModal);
+    
+    const workOrderField = document.getElementById('workOrderField');
+    if (workOrderField) {
+        workOrderField.addEventListener('input', (e) => {
+            if (activeEntry) {
+                activeEntry.workOrder = e.target.value.trim();
+                saveActiveEntry();
+            }
+        });
+    }
     
     const notesField = document.getElementById('notesField');
     if (notesField) {
